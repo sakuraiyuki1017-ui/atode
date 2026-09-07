@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#e3a1b9">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="あとで。">
+  <meta name="description" content="思いついたら、ひとつだけ。メモ・TODO・日記をまとめる個人用アプリ。">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
+  <link rel="apple-touch-icon" href="./icon-192.png">
+  <title>あとで。</title>
+  <style>
+    :root{--bg:#fff7fa;--bg2:#fff2f7;--paper:#fffdfd;--ink:#4f3a42;--sub:#8b727b;--line:#efd7df;--sakura:#e3a1b9;--sakura-deep:#b86184;--sakura-pale:#f9e4ec;--shadow:0 10px 28px rgba(127,72,94,.09);--danger:#b45b6a;--ok:#668a75}
+    *{box-sizing:border-box} body{margin:0;min-height:100vh;background:linear-gradient(180deg,var(--bg) 0%,var(--bg2) 100%);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Noto Sans JP","Hiragino Sans","Yu Gothic UI","Yu Gothic",sans-serif}
+    button,input,textarea,select{font:inherit;color:inherit} button{cursor:pointer}
+    .app{max-width:760px;margin:0 auto;min-height:100vh;padding:calc(20px + env(safe-area-inset-top)) 18px calc(98px + env(safe-area-inset-bottom))}
+    header{display:flex;justify-content:space-between;align-items:flex-end;padding:8px 4px 14px}.brand-wrap{display:flex;align-items:center;gap:10px}.brand{font-size:31px;font-weight:800;letter-spacing:.07em}.mark{width:45px;height:45px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#f5d7e3,#dfa1b9);color:#fff;font-size:22px;border:2px solid #fff;box-shadow:0 4px 14px rgba(184,97,132,.22)}
+    .date{font-size:13px;color:var(--sub);margin-top:6px}.count{font-size:12px;color:var(--sub)}
+    .write{width:100%;border:0;border-radius:999px;padding:16px 20px;background:linear-gradient(135deg,#dfa1b9,#bf6b8c);color:#fff;font-weight:760;box-shadow:0 8px 20px rgba(184,97,132,.2);margin:2px 0 14px}
+    .tabs{display:flex;gap:8px;overflow-x:auto;padding:2px 0 12px;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}.tab{flex:0 0 auto;border:1px solid var(--line);background:rgba(255,255,255,.58);border-radius:999px;padding:9px 14px;color:var(--sub);font-size:13px}.tab.active{background:#fff;color:var(--sakura-deep);border-color:var(--sakura-deep);font-weight:700}
+    .search{display:block;margin:0 0 10px}.search input{width:100%;border:1px solid var(--line);background:#fff;border-radius:16px;padding:13px 14px;outline:none}
+    .filters{display:none;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:10px}.filters.show{display:flex}.filters::-webkit-scrollbar{display:none}.chip{flex:0 0 auto;border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 12px;font-size:12px;color:var(--sub)}.chip.active{background:var(--sakura-pale);border-color:var(--sakura-deep);color:var(--sakura-deep);font-weight:700}
+    .toolbar{display:none;gap:8px;margin:0 0 12px;flex-wrap:wrap}.toolbar.show{display:flex}.tool{border:1px solid var(--line);background:#fff;border-radius:14px;padding:9px 11px;font-size:12px}.tool.active{border-color:var(--sakura-deep);background:#fff7fa;color:var(--sakura-deep)}
+    .calendar-wrap{display:none}.calendar-wrap.show{display:block}.cal-head{display:flex;align-items:center;justify-content:space-between;margin:2px 0 10px}.cal-head button{border:0;background:transparent;font-size:21px;color:var(--sakura-deep)}.cal-title{font-weight:750}.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;background:rgba(255,255,255,.56);border:1px solid var(--line);border-radius:20px;padding:10px;margin-bottom:12px}.dow{text-align:center;font-size:10px;color:var(--sub);padding:4px 0}.day{aspect-ratio:1;border:0;background:transparent;border-radius:14px;font-size:12px;position:relative}.day.has::after{content:'';width:5px;height:5px;border-radius:50%;background:var(--sakura-deep);position:absolute;bottom:5px;left:50%;transform:translateX(-50%)}.day.today{background:var(--sakura-pale);font-weight:800}.day.selected{outline:1.5px solid var(--sakura-deep);background:#fff}.day.blank{visibility:hidden}
+    .settings{display:none}.settings.show{display:block}.panel{border:1px solid var(--line);background:#fff;border-radius:18px;padding:14px;margin-bottom:12px;font-size:12px;line-height:1.65;box-shadow:0 4px 14px rgba(119,74,91,.035)}.panel h3{margin:0 0 8px;font-size:14px}.panel p{margin:4px 0;color:var(--sub)}.status-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.status-box{border:1px solid var(--line);background:#fffafb;border-radius:14px;padding:10px}.status-box strong{display:block;font-size:18px;color:var(--sakura-deep)}.settings-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.settings button{border:1px solid var(--line);background:#fff7fa;border-radius:12px;padding:9px 11px}.settings button.primary{background:var(--sakura-deep);color:#fff;border-color:var(--sakura-deep)}.settings button.danger{color:var(--danger)}.small{font-size:11px;color:var(--sub)}.badge{display:inline-block;border-radius:999px;padding:3px 7px;background:#eef5f0;color:var(--ok);font-size:10px;font-weight:700}
+    .section-title{font-size:13px;color:var(--sub);margin:9px 5px 8px}.list{display:grid;gap:10px}
+    .card{border:1px solid var(--line);border-radius:22px;background:#fff;padding:15px;box-shadow:0 4px 14px rgba(119,74,91,.045)}.card.todo{background:linear-gradient(135deg,#fff,#fff5f8)}.card.memo{background:linear-gradient(135deg,#fff,#fffafb)}.card.done{opacity:.56}.card.diary{padding:0;overflow:hidden;background:linear-gradient(180deg,#fffefc,#fff6fa)}.diary-cover{padding:14px 16px 16px;border-bottom:1px solid #f2dde6;position:relative;background:linear-gradient(135deg,#f7e0e9,#fffdfd)}.diary-cover::before{content:'';position:absolute;left:0;top:0;bottom:0;width:10px;background:linear-gradient(180deg,#d38aa8,#bf6b8c)}.diary-label{font-size:10px;letter-spacing:.16em;color:#8d6171;text-transform:uppercase;margin-left:10px}.diary-title{font-size:19px;font-weight:780;color:#624a54;margin:8px 0 2px 10px}.diary-date{font-size:12px;color:var(--sub);margin-left:10px}.diary-body{padding:14px 16px 16px}
+    .meta{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:9px;font-size:11px;color:var(--sub)}.kind{font-weight:800;letter-spacing:.05em;color:var(--sakura-deep)}.text{white-space:pre-wrap;line-height:1.68;font-size:15px;overflow-wrap:anywhere}.done .text{text-decoration:line-through}.due{margin-top:9px;font-size:12px;color:var(--sub)}.due.over{color:var(--danger);font-weight:700}.tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.tag{border-radius:999px;background:var(--sakura-pale);color:#8f5369;padding:4px 8px;font-size:11px}.photos{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:11px}.photos.one{grid-template-columns:1fr}.photo{width:100%;aspect-ratio:1;object-fit:cover;border-radius:14px;border:1px solid var(--line)}
+    .actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap}.mini{border:1px solid var(--line);background:rgba(255,255,255,.75);padding:7px 10px;border-radius:999px;font-size:12px}.empty{text-align:center;color:var(--sub);padding:54px 16px;line-height:1.9}.empty .moon{font-size:30px;margin-bottom:7px;color:var(--sakura-deep)}
+    .modal-back{position:fixed;inset:0;background:rgba(69,47,55,.28);display:none;align-items:flex-end;justify-content:center;z-index:20}.modal-back.show{display:flex}.modal{width:min(720px,100%);max-height:94vh;overflow:auto;background:#fffdfd;border-radius:28px 28px 0 0;padding:18px 18px calc(20px + env(safe-area-inset-bottom));box-shadow:0 -14px 50px rgba(69,47,55,.18)}.grab{width:42px;height:4px;border-radius:999px;background:var(--line);margin:0 auto 14px}.type-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}.type{border:1px solid var(--line);background:#fff8fb;border-radius:16px;padding:11px 8px;font-weight:760;font-size:13px;color:#8f737e;transition:.15s ease}.type.active{border-color:var(--sakura-deep);background:linear-gradient(135deg,#dfa1b9,#bf6b8c);color:#fff;box-shadow:0 5px 14px rgba(190,107,137,.2)}textarea{width:100%;min-height:112px;resize:vertical;border:1px solid var(--line);border-radius:18px;background:#fff;padding:14px;outline:none;line-height:1.6}.field{margin-top:10px}.field label{display:block;font-size:12px;color:var(--sub);margin:0 0 6px 3px}.field input,.field select{width:100%;border:1px solid var(--line);border-radius:14px;padding:11px 12px;background:#fff;outline:none}.todo-fields{display:none}.todo-fields.show{display:block}.suggestion{display:none;margin:9px 1px 0;padding:10px 11px;border-radius:14px;background:#fff5f8;border:1px dashed #dfadc0;font-size:12px;color:#7e5665}.suggestion.show{display:flex;justify-content:space-between;gap:8px;align-items:center}.suggestion button{border:0;background:var(--sakura-pale);border-radius:999px;padding:6px 9px;font-size:11px}
+    .fold{margin-top:10px;border:1px solid var(--line);border-radius:18px;background:#fff;overflow:hidden}.fold summary{list-style:none;display:flex;justify-content:space-between;align-items:center;padding:12px 14px;font-size:13px;color:var(--sub);cursor:pointer}.fold summary::-webkit-details-marker{display:none}.fold summary strong{color:var(--ink)}.fold summary .hint{font-size:11px;color:var(--sub)}.fold[open] summary{border-bottom:1px solid #f4e3ea;background:#fffafb}.fold-body{padding:12px 14px}.tag-picker,.new-tag-row{display:grid;grid-template-columns:1fr auto;gap:8px}.new-tag-row{margin-top:8px}.tag-picker button,.new-tag-row button{border:1px solid var(--line);background:#fff7fa;border-radius:14px;padding:0 13px;font-size:12px;font-weight:700;color:var(--sakura-deep)}.selected-tags{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.selected-tag{display:inline-flex;align-items:center;gap:5px;border-radius:999px;background:var(--sakura-pale);color:#8f5369;padding:6px 9px;font-size:12px;font-weight:700}.selected-tag button{border:0;background:transparent;color:#9c5e74;padding:0;font-size:15px;line-height:1}.tag-help{font-size:10px;color:var(--sub);margin-top:5px}.preview{display:none;margin-top:10px}.preview.show{display:block}.preview-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.preview-item{position:relative}.preview-item img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:14px;border:1px solid var(--line)}.preview-item button{position:absolute;top:5px;right:5px;border:0;background:rgba(79,58,66,.72);color:#fff;border-radius:999px;width:24px;height:24px;display:flex;align-items:center;justify-content:center}.photo-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}.photo-btn{display:flex;align-items:center;justify-content:center;border:1px solid var(--line);background:#fff;border-radius:14px;padding:10px 12px;font-size:12px;font-weight:700}.photo-btn.primary{background:#fff3f7;color:var(--sakura-deep);border-color:#e6b8c9}.modal-actions{display:grid;grid-template-columns:1fr 2fr;gap:9px;margin-top:14px}.cancel,.save{border:0;border-radius:16px;padding:13px}.cancel{background:#fff5f8;color:var(--sub)}.save{background:linear-gradient(135deg,#dfa1b9,#bf6b8c);color:#fff;font-weight:760}.footer-note{text-align:center;font-size:11px;color:var(--sub);margin-top:22px}
+    @media(min-width:720px){.app{padding-top:34px}.modal-back{align-items:center;padding:22px}.modal{border-radius:28px;max-width:620px;padding-bottom:20px}}
+  </style>
+</head>
+<body>
+<main class="app">
+  <header>
+    <div><div class="brand-wrap"><div class="brand">あとで。</div><div class="mark">✿</div></div><div class="date" id="todayLabel"></div></div>
+    <div class="count" id="todayCount"></div>
+  </header>
+
+  <button class="write" id="writeBtn">＋ ひとつ、残しておく</button>
+
+  <div class="tabs">
+    <button class="tab" data-filter="today">今日</button>
+    <button class="tab active" data-filter="todo">TODO</button>
+    <button class="tab" data-filter="diary">日記</button>
+    <button class="tab" data-filter="memo">メモ</button>
+    <button class="tab" data-filter="settings">設定</button>
+  </div>
+
+  <div class="search"><input id="searchInput" placeholder="検索（本文・タグ）"></div>
+  <div class="filters" id="tagFilters"></div>
+  <div class="toolbar" id="tagLogicToolbar"><button class="tool" id="tagLogicBtn">タグ条件：OR</button></div>
+  <div class="toolbar show" id="todoToolbar"><button class="tool active" id="pendingOnly">未完了だけ</button><button class="tool active" id="dueSort">期限順</button></div>
+
+  <div class="calendar-wrap" id="calendarWrap">
+    <div class="cal-head"><button id="prevMonth">‹</button><div class="cal-title" id="calTitle"></div><button id="nextMonth">›</button></div>
+    <div class="calendar" id="calendar"></div>
+  </div>
+
+  <section class="settings" id="settingsBox">
+    <div class="panel">
+      <h3>あとで。1.0 Web版 <span class="badge">FIXED URL</span></h3>
+      <p>固定HTTPS URLで使う前提のWebアプリ版です。開いただけでは保存領域を書き換えません。</p>
+      <div class="status-grid">
+        <div class="status-box"><span>記録</span><strong id="statEntries">0</strong><span class="small" id="statBreakdown"></span></div>
+        <div class="status-box"><span>写真</span><strong id="statPhotos">0</strong><span class="small" id="statSize"></span></div>
+        <div class="status-box"><span>自動保護</span><strong id="statHistory">0</strong><span class="small" id="statHistoryTime">まだありません</span></div>
+        <div class="status-box"><span>最終書き出し</span><strong id="statExport">—</strong><span class="small">JSONバックアップ</span></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>アプリ環境</h3>
+      <p id="originStatus">環境を確認しています。</p>
+      <div class="settings-actions"><button id="installBtn" class="primary" hidden>ホーム画面に追加</button></div>
+      <p class="small">この版は <strong>https://</strong> の固定URLから開いて使ってください。ダウンロードしたHTMLを直接開く使い方は、保存先が安定しません。</p>
+    </div>
+
+    <div class="panel">
+      <h3>バックアップ</h3>
+      <p>端末移行やバージョンアップ前には、まずJSONを書き出しておくのがおすすめ。</p>
+      <div class="settings-actions">
+        <button class="primary" id="exportBtn">バックアップを書き出す</button>
+        <button id="importBtn">バックアップから復元</button>
+        <input id="importInput" type="file" accept="application/json,.json" hidden>
+      </div>
+      <p class="small">復元前には、現在の状態を「インポート前バックアップ」として自動保護します。</p>
+      <div class="settings-actions"><button id="preImportRestoreBtn">インポート前に戻す</button></div>
+    </div>
+
+    <div class="panel">
+      <h3>直近の変更を取り消す</h3>
+      <p id="historySummary">戻せる変更はありません。</p>
+      <div class="settings-actions"><button id="undoBtn">1つ前の状態に戻す</button></div>
+      <p class="small">追加・編集・完了・削除の直前状態を、最大5回分だけ保存します。</p>
+    </div>
+
+    <div class="panel">
+      <h3>通知</h3>
+      <p>ブラウザが対応していれば、期限TODOの通知を使えます。</p>
+      <div class="settings-actions"><button id="notifBtn">通知を許可する</button><button id="notifTest">通知テスト</button></div>
+    </div>
+
+    <div class="panel">
+      <h3>次の段階</h3>
+      <p>まず固定URLで保存が安定することを確認します。合格後、次にIndexedDBへ引っ越します。</p>
+    </div>
+  </section>
+
+  <div class="section-title" id="sectionTitle">TODO</div>
+  <div class="list" id="list"></div>
+  <div class="footer-note">思いついたら、ひとつだけ。</div>
+</main>
+
+<div class="modal-back" id="modalBack">
+  <div class="modal">
+    <div class="grab"></div>
+    <div class="type-row"><button class="type active" data-type="memo">メモ</button><button class="type" data-type="todo">TODO</button><button class="type" data-type="diary">日記</button></div>
+    <textarea id="entryText" placeholder="あとで思い出せるくらいに。"></textarea>
+    <div class="suggestion" id="suggestion"><span id="suggestText"></span><button id="applySuggest" type="button">TODOにする</button></div>
+    <div class="todo-fields" id="todoFields"><div class="field"><label>期限</label><input id="dueDate" type="date"></div></div>
+
+    <details class="fold" id="tagFold">
+      <summary><strong>タグ</strong><span class="hint" id="tagSummary">任意・最大3つ</span></summary>
+      <div class="fold-body">
+        <div class="tag-picker"><select id="tagSelect"><option value="">既存タグから選ぶ</option></select><button id="addExistingTag" type="button">追加</button></div>
+        <div class="new-tag-row"><input id="newTagInput" placeholder="新しいタグ"><button id="addNewTag" type="button">追加</button></div>
+        <div class="selected-tags" id="selectedTags"></div><div class="tag-help">タグは3つまで。検索画面でAND/ORを切り替えられます。</div>
+      </div>
+    </details>
+
+    <details class="fold" id="photoFold">
+      <summary><strong>写真</strong><span class="hint" id="photoSummary">任意</span></summary>
+      <div class="fold-body">
+        <div class="photo-row"><button class="photo-btn primary" id="cameraBtn" type="button">撮影</button><button class="photo-btn" id="galleryBtn" type="button">選ぶ</button></div>
+        <input id="cameraInput" type="file" accept="image/*" capture="environment" hidden>
+        <input id="galleryInput" type="file" accept="image/*" multiple hidden>
+        <div class="preview" id="preview"><div class="preview-grid" id="previewGrid"></div></div>
+      </div>
+    </details>
+
+    <div class="modal-actions"><button class="cancel" id="cancelBtn">やめる</button><button class="save" id="saveBtn">保存</button></div>
+  </div>
+</div>
+
+<script>
+(()=>{
+  'use strict';
+  const KEY='atode.entries.v4';
+  const PREV_KEYS=['atode.entries.v3','atode.entries.v2','atode.entries.v1'];
+  const HISTORY_KEY='atode.history.v1';
+  const PREIMPORT_KEY='atode.preimport.v1';
+  const LAST_EXPORT_KEY='atode.lastExport.v1';
+  const MAX_HISTORY=5;
+  const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+  const clone=x=>JSON.parse(JSON.stringify(x));
+  const uid=()=>crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random().toString(36).slice(2);
+
+  let entries=loadEntries();
+  let history=loadHistory();
+  let filter='todo', selectedType='memo', editingId=null, photoList=[], selectedTags=[];
+  let pendingOnly=true, dueSort=true, selectedTagFilters=[], tagLogic='or';
+  let calCursor=new Date(), selectedDiaryDay='';
+
+  function dayKey(d=new Date()){let y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0');return `${y}-${m}-${dd}`}
+  function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
+  function fmt(iso){if(!iso)return'';return new Intl.DateTimeFormat('ja-JP',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'}).format(new Date(iso))}
+  function prettyDue(s){if(!s)return'';let [_,m,d]=s.split('-').map(Number);return `${m}/${d}`}
+  function label(type){return type==='todo'?'TODO':type==='diary'?'日記':'メモ'}
+  function normalize(list){return (Array.isArray(list)?list:[]).map(e=>{const tags=Array.isArray(e.tags)?e.tags.filter(Boolean):[];let photos=[];if(Array.isArray(e.photos))photos=e.photos.filter(Boolean);else if(e.photo)photos=[e.photo];const createdAt=e.createdAt||new Date().toISOString();return {...e,id:e.id||uid(),type:['memo','todo','diary'].includes(e.type)?e.type:'memo',text:String(e.text||''),tags,photos,done:!!e.done,createdAt,updatedAt:e.updatedAt||createdAt,day:e.day||dayKey(new Date(createdAt)),due:e.due||''}})}
+
+  function loadEntries(){
+    try{
+      const current=localStorage.getItem(KEY); if(current!==null) return normalize(JSON.parse(current));
+      for(const k of PREV_KEYS){const raw=localStorage.getItem(k);if(raw!==null)return normalize(JSON.parse(raw));}
+    }catch(err){console.warn('load failed',err)}
+    return [];
+  }
+  function persistEntries(){localStorage.setItem(KEY,JSON.stringify(entries))}
+  function loadHistory(){try{return JSON.parse(localStorage.getItem(HISTORY_KEY))||[]}catch{return[]}}
+  function saveHistory(){localStorage.setItem(HISTORY_KEY,JSON.stringify(history))}
+
+  function pushHistory(rec){
+    rec={id:uid(),at:new Date().toISOString(),...rec};
+    let next=[rec,...history].slice(0,MAX_HISTORY);
+    while(next.length){
+      try{localStorage.setItem(HISTORY_KEY,JSON.stringify(next));history=next;return true}catch(err){next.pop()}
+    }
+    return false;
+  }
+  function discardHistory(id){history=history.filter(h=>h.id!==id);try{saveHistory()}catch{}}
+  function lastHistory(){return history[0]||null}
+
+  function applyUndoRecord(rec){
+    if(!rec)return;
+    if(rec.op==='add') entries=entries.filter(e=>e.id!==rec.itemId);
+    if(rec.op==='edit'||rec.op==='toggle'){
+      const e=entries.find(x=>x.id===rec.itemId);
+      if(e) Object.assign(e,clone(rec.before||{}));
+      else if(rec.fullBefore) entries.push(normalize([rec.fullBefore])[0]);
+    }
+    if(rec.op==='delete'){
+      entries=entries.filter(e=>e.id!==rec.itemId);
+      if(rec.before) entries.push(normalize([rec.before])[0]);
+    }
+  }
+
+  function runMutation(rec,mutate){
+    const ok=pushHistory(rec);
+    if(!ok && !confirm('自動バックアップを保存できませんでした。この変更を続けますか？')) return false;
+    const recId=ok?history[0].id:null;
+    try{mutate();persistEntries();return true}catch(err){
+      try{applyUndoRecord(rec)}catch{}
+      if(recId)discardHistory(recId);
+      alert('保存できませんでした。写真や記録の量がlocalStorageの上限に近い可能性があります。');
+      return false;
+    }
+  }
+
+  function allTags(){return [...new Set(entries.flatMap(e=>e.tags||[]).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ja'))}
+  function updateHeader(){const n=new Date();$('#todayLabel').textContent=new Intl.DateTimeFormat('ja-JP',{year:'numeric',month:'long',day:'numeric',weekday:'short'}).format(n);const c=entries.filter(e=>e.day===dayKey()).length;$('#todayCount').textContent=c?`今日 ${c}件`:'今日はまだ空っぽ'}
+  function isOver(e){return e.type==='todo'&&e.due&&!e.done&&e.due<dayKey()}
+
+  function visible(){
+    const terms=$('#searchInput').value.trim().toLowerCase().split(/\s+/).filter(Boolean);let out=[...entries];
+    if(selectedTagFilters.length)out=out.filter(e=>{const tags=e.tags||[];return tagLogic==='and'?selectedTagFilters.every(tag=>tags.includes(tag)):selectedTagFilters.some(tag=>tags.includes(tag))});
+    if(terms.length)out=out.filter(e=>{const hay=(`${e.text} ${(e.tags||[]).join(' ')}`).toLowerCase();return terms.every(term=>hay.includes(term))});
+    if(filter==='today')out=out.filter(e=>e.day===dayKey());
+    if(filter==='todo'){out=out.filter(e=>e.type==='todo');if(pendingOnly)out=out.filter(e=>!e.done)}
+    if(filter==='diary'){out=out.filter(e=>e.type==='diary');if(selectedDiaryDay)out=out.filter(e=>e.day===selectedDiaryDay)}
+    if(filter==='memo')out=out.filter(e=>e.type==='memo');
+    if(filter==='todo'&&dueSort)out.sort((a,b)=>((a.due||'9999-99-99').localeCompare(b.due||'9999-99-99'))||b.createdAt.localeCompare(a.createdAt));else out.sort((a,b)=>b.createdAt.localeCompare(a.createdAt));
+    return out;
+  }
+
+  function buildTagFilters(){const tags=allTags();$('#tagFilters').classList.toggle('show',tags.length>0);$('#tagLogicToolbar').classList.toggle('show',tags.length>0);$('#tagLogicBtn').textContent=`タグ条件：${tagLogic.toUpperCase()}`;$('#tagLogicBtn').classList.toggle('active',tagLogic==='and');$('#tagFilters').innerHTML=tags.map(t=>`<button class="chip ${selectedTagFilters.includes(t)?'active':''}" data-tag="${esc(t)}">#${esc(t)}</button>`).join('');$$('#tagFilters .chip').forEach(b=>b.onclick=()=>{const tag=b.dataset.tag;if(selectedTagFilters.includes(tag))selectedTagFilters=selectedTagFilters.filter(x=>x!==tag);else selectedTagFilters.push(tag);buildTagFilters();render()})}
+  function photosHtml(list){if(!list||!list.length)return'';const cls=list.length===1?'photos one':'photos';return `<div class="${cls}">${list.map(src=>`<img class="photo" src="${src}" alt="添付写真">`).join('')}</div>`}
+  function diaryCard(e){const title=(e.text||'').split('\n')[0].slice(0,18)||'きょうの記録';return `<article class="card diary" data-id="${e.id}"><div class="diary-cover"><div class="diary-label">DIARY</div><div class="diary-title">${esc(title)}</div><div class="diary-date">${fmt(e.createdAt)}</div></div><div class="diary-body"><div class="text">${esc(e.text)}</div>${photosHtml(e.photos)}${(e.tags||[]).length?`<div class="tags">${e.tags.map(t=>`<span class="tag">#${esc(t)}</span>`).join('')}</div>`:''}<div class="actions"><button class="mini edit">編集</button><button class="mini delete">削除</button></div></div></article>`}
+  function normalCard(e){return `<article class="card ${e.type} ${e.done?'done':''}" data-id="${e.id}"><div class="meta"><span class="kind">${label(e.type)}</span><span>·</span><span>${fmt(e.createdAt)}</span>${e.done?'<span>· 完了</span>':''}</div><div class="text">${esc(e.text)}</div>${photosHtml(e.photos)}${e.type==='todo'&&e.due?`<div class="due ${isOver(e)?'over':''}">${isOver(e)?'期限超過：':'期限：'}${prettyDue(e.due)}</div>`:''}${(e.tags||[]).length?`<div class="tags">${e.tags.map(t=>`<span class="tag">#${esc(t)}</span>`).join('')}</div>`:''}<div class="actions">${e.type==='todo'?`<button class="mini toggle">${e.done?'戻す':'✓ 完了'}</button>`:''}<button class="mini edit">編集</button><button class="mini delete">削除</button></div></article>`}
+
+  function render(){updateHeader();buildTagFilters();$('#todoToolbar').classList.toggle('show',filter==='todo');$('#calendarWrap').classList.toggle('show',filter==='diary');$('#settingsBox').classList.toggle('show',filter==='settings');$('#searchInput').style.display=filter==='settings'?'none':'block';$('#tagFilters').style.display=filter==='settings'?'none':'';$('#tagLogicToolbar').style.display=filter==='settings'?'none':'';$('#sectionTitle').style.display=filter==='settings'?'none':'block';$('#sectionTitle').textContent=filter==='today'?'今日':filter==='todo'?'TODO':filter==='diary'?(selectedDiaryDay?`${selectedDiaryDay.replaceAll('-','/')} の日記`:'日記'):filter==='memo'?'メモ':'設定';if(filter==='settings'){$('#list').innerHTML='';updateStatus();return}const data=visible();if(!data.length){$('#list').innerHTML=`<div class="empty"><div class="moon">${filter==='todo'?'✦':'☾'}</div>${$('#searchInput').value?'見つかりませんでした。':filter==='today'?'今日はまだ何もありません。<br>思いついたら、ひとつだけ。':'ここはまだ静かです。'}</div>`;return}$('#list').innerHTML=data.map(e=>e.type==='diary'?diaryCard(e):normalCard(e)).join('');$$('.toggle').forEach(b=>b.onclick=onToggle);$$('.edit').forEach(b=>b.onclick=onEdit);$$('.delete').forEach(b=>b.onclick=onDelete)}
+
+  function buildCalendar(){const y=calCursor.getFullYear(),m=calCursor.getMonth();$('#calTitle').textContent=`${y}年 ${m+1}月`;const first=new Date(y,m,1).getDay(),last=new Date(y,m+1,0).getDate(),today=dayKey();const diaryDays=new Set(entries.filter(e=>e.type==='diary').map(e=>e.day));let h=['日','月','火','水','木','金','土'].map(x=>`<div class="dow">${x}</div>`).join('');for(let i=0;i<first;i++)h+='<button class="day blank"></button>';for(let d=1;d<=last;d++){const k=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;h+=`<button class="day ${diaryDays.has(k)?'has':''} ${k===today?'today':''} ${k===selectedDiaryDay?'selected':''}" data-day="${k}">${d}</button>`}$('#calendar').innerHTML=h;$$('.day[data-day]').forEach(b=>b.onclick=()=>{selectedDiaryDay=selectedDiaryDay===b.dataset.day?'':b.dataset.day;buildCalendar();render()})}
+
+  function setType(t){selectedType=t;$$('.type').forEach(b=>b.classList.toggle('active',b.dataset.type===t));$('#todoFields').classList.toggle('show',t==='todo');updateSuggestion()}
+  function aiSuggest(text){let t=text.trim();if(!t)return false;return /(まで|締切|期限|予約|確認|連絡|送る|提出|買う|忘れず|やる|する|支払|振込|申し込|申込|行く|電話|メール|明日|今日中|今週|来週)/.test(t)&&!/[。！？!?].{25,}/.test(t)}
+  function updateSuggestion(){let yes=selectedType!=='todo'&&aiSuggest($('#entryText').value);$('#suggestion').classList.toggle('show',yes);$('#suggestText').textContent=yes?'これ、TODOっぽいかも。':''}
+  function updateSummaries(){$('#tagSummary').textContent=selectedTags.length?`${selectedTags.length}個選択中`:'任意・最大3つ';$('#photoSummary').textContent=photoList.length?`${photoList.length}枚ついています`:'任意'}
+  function refreshTagUI(){const tags=allTags();$('#tagSelect').innerHTML='<option value="">既存タグから選ぶ</option>'+tags.map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join('');$('#selectedTags').innerHTML=selectedTags.map((t,i)=>`<span class="selected-tag">#${esc(t)} <button data-i="${i}" type="button">×</button></span>`).join('');$$('#selectedTags button').forEach(b=>b.onclick=()=>{selectedTags.splice(Number(b.dataset.i),1);refreshTagUI()});updateSummaries()}
+  function addTag(raw){const tag=(raw||'').trim().replace(/^#/,'');if(!tag||selectedTags.includes(tag))return;if(selectedTags.length>=3){alert('タグは3つまでだよ。');return}selectedTags.push(tag);refreshTagUI()}
+  function renderPreview(){$('#preview').classList.toggle('show',!!photoList.length);$('#previewGrid').innerHTML=photoList.map((src,i)=>`<div class="preview-item"><img src="${src}" alt="写真${i+1}"><button type="button" data-i="${i}">×</button></div>`).join('');$$('#previewGrid button').forEach(b=>b.onclick=()=>{photoList.splice(Number(b.dataset.i),1);renderPreview()});updateSummaries()}
+  async function resizePhoto(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>{const img=new Image();img.onload=()=>{const max=900,scale=Math.min(1,max/Math.max(img.width,img.height)),w=Math.round(img.width*scale),h=Math.round(img.height*scale);const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);resolve(c.toDataURL('image/jpeg',.78))};img.onerror=reject;img.src=r.result};r.onerror=reject;r.readAsDataURL(file)})}
+  async function addFiles(files){for(const f of [...files].slice(0,6-photoList.length)){try{photoList.push(await resizePhoto(f))}catch{alert('写真を読み込めませんでした。')}}renderPreview();$('#photoFold').open=true}
+  function openModal(type='memo',e=null){selectedType=type;editingId=e?.id||null;photoList=[...((e?.photos)||[])];selectedTags=[...(e?.tags||[])].slice(0,3);$('#entryText').value=e?.text||'';$('#dueDate').value=e?.due||'';$('#newTagInput').value='';setType(type);refreshTagUI();renderPreview();updateSuggestion();$('#tagFold').open=selectedTags.length>0;$('#photoFold').open=photoList.length>0;$('#modalBack').classList.add('show');setTimeout(()=>$('#entryText').focus(),80)}
+  function closeModal(){$('#modalBack').classList.remove('show');editingId=null;photoList=[];selectedTags=[];$('#entryText').value='';$('#newTagInput').value='';$('#dueDate').value='';$('#tagFold').open=false;$('#photoFold').open=false;refreshTagUI();renderPreview()}
+
+  function save(){
+    const text=$('#entryText').value.trim();if(!text)return $('#entryText').focus();
+    const now=new Date().toISOString(),due=selectedType==='todo'?$('#dueDate').value:'',tags=selectedTags.slice(0,3),photos=[...photoList];
+    let ok=false;
+    if(editingId){
+      const e=entries.find(x=>x.id===editingId);if(!e)return;
+      const photosChanged=JSON.stringify(e.photos||[])!==JSON.stringify(photos);
+      const before={type:e.type,text:e.text,due:e.due,tags:clone(e.tags||[]),done:e.done,updatedAt:e.updatedAt};if(photosChanged)before.photos=clone(e.photos||[]);
+      ok=runMutation({op:'edit',itemId:e.id,before,reason:'編集'},()=>{Object.assign(e,{type:selectedType,text,due,tags,photos,updatedAt:now});if(selectedType!=='todo')e.done=false});
+    }else{
+      const item={id:uid(),type:selectedType,text,due,tags,photos,done:false,createdAt:now,updatedAt:now,day:dayKey()};
+      ok=runMutation({op:'add',itemId:item.id,reason:'追加'},()=>entries.push(item));
+    }
+    if(ok){closeModal();buildCalendar();render();checkDueNotifications()}
+  }
+  function fromBtn(b){return entries.find(e=>e.id===b.closest('.card').dataset.id)}
+  function onToggle(ev){const e=fromBtn(ev.currentTarget);if(!e)return;const before={done:e.done,updatedAt:e.updatedAt};if(runMutation({op:'toggle',itemId:e.id,before,reason:e.done?'未完了へ戻す':'完了'},()=>{e.done=!e.done;e.updatedAt=new Date().toISOString()}))render()}
+  function onEdit(ev){const e=fromBtn(ev.currentTarget);if(e)openModal(e.type,e)}
+  function onDelete(ev){const e=fromBtn(ev.currentTarget);if(!e||!confirm('この記録を削除しますか？'))return;if(runMutation({op:'delete',itemId:e.id,before:clone(e),reason:'削除'},()=>{entries=entries.filter(x=>x.id!==e.id)})){buildCalendar();render()}}
+
+  function backupPayload(){return {app:'あとで。',formatVersion:1,appVersion:'1.0-web',exportedAt:new Date().toISOString(),entries:clone(entries)}}
+  function backupFilename(){const d=new Date(),p=n=>String(n).padStart(2,'0');return `atode-backup-${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}.json`}
+  async function exportBackup(){
+    const text=JSON.stringify(backupPayload(),null,2),file=new File([text],backupFilename(),{type:'application/json'});
+    try{
+      if(navigator.canShare&&navigator.canShare({files:[file]})&&navigator.share){await navigator.share({files:[file],title:'あとで。バックアップ'});}else{const url=URL.createObjectURL(file),a=document.createElement('a');a.href=url;a.download=file.name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000)}
+      localStorage.setItem(LAST_EXPORT_KEY,new Date().toISOString());updateStatus();
+    }catch(err){if(err?.name!=='AbortError')alert('バックアップを書き出せませんでした。別のブラウザで試してください。')}
+  }
+  function parseImport(data){if(Array.isArray(data))return normalize(data);if(data&&Array.isArray(data.entries))return normalize(data.entries);throw new Error('format')}
+  async function importBackup(file){
+    let incoming;try{incoming=parseImport(JSON.parse(await file.text()))}catch{alert('「あとで。」のバックアップとして読み込めませんでした。');return}
+    if(!confirm(`${incoming.length}件を復元します。現在のデータは自動保護してから置き換えます。よろしいですか？`))return;
+    try{localStorage.setItem(PREIMPORT_KEY,JSON.stringify({at:new Date().toISOString(),entries:clone(entries)}))}catch{alert('復元前の自動バックアップを保存できません。先に「バックアップを書き出す」を実行してください。');return}
+    const old=entries;entries=incoming;
+    try{persistEntries();history=[];try{saveHistory()}catch{};buildCalendar();render();alert('復元しました。')}catch{entries=old;alert('復元データを保存できませんでした。容量が大きすぎる可能性があります。')}
+  }
+  function restorePreImport(){
+    let snap;try{snap=JSON.parse(localStorage.getItem(PREIMPORT_KEY)||'null')}catch{}
+    if(!snap||!Array.isArray(snap.entries)){alert('インポート前バックアップはありません。');return}
+    if(!confirm(`インポート前の ${snap.entries.length}件 に戻しますか？`))return;
+    const current={at:new Date().toISOString(),entries:clone(entries)},target=normalize(snap.entries),old=entries;
+    try{localStorage.setItem(PREIMPORT_KEY,JSON.stringify(current));entries=target;persistEntries();history=[];try{saveHistory()}catch{};buildCalendar();render();alert('インポート前の状態に戻しました。')}catch{entries=old;alert('戻せませんでした。')}
+  }
+  function undoLast(){
+    const rec=lastHistory();if(!rec){alert('戻せる変更はありません。');return}
+    if(!confirm(`「${rec.reason||'変更'}」を取り消して、1つ前の状態に戻しますか？`))return;
+    const oldEntries=clone(entries),oldHistory=clone(history);applyUndoRecord(rec);history.shift();
+    try{persistEntries();saveHistory();buildCalendar();render();alert('1つ前の状態に戻しました。')}catch{entries=oldEntries;history=oldHistory;alert('元に戻せませんでした。')}
+  }
+
+  function approxSize(){try{return new Blob([JSON.stringify(entries)]).size}catch{return JSON.stringify(entries).length*2}}
+  function humanBytes(n){if(n<1024)return `${n} B`;if(n<1024*1024)return `${(n/1024).toFixed(1)} KB`;return `${(n/1024/1024).toFixed(1)} MB`}
+  function updateStatus(){
+    const todos=entries.filter(e=>e.type==='todo').length,diaries=entries.filter(e=>e.type==='diary').length,memos=entries.filter(e=>e.type==='memo').length,photos=entries.reduce((n,e)=>n+(e.photos?.length||0),0);
+    $('#statEntries').textContent=entries.length;$('#statBreakdown').textContent=`TODO ${todos} / 日記 ${diaries} / メモ ${memos}`;$('#statPhotos').textContent=photos;$('#statSize').textContent=`約 ${humanBytes(approxSize())}`;$('#statHistory').textContent=history.length;$('#statHistoryTime').textContent=history[0]?`最終 ${fmt(history[0].at)} · ${history[0].reason}`:'まだありません';const le=localStorage.getItem(LAST_EXPORT_KEY);$('#statExport').textContent=le?fmt(le):'—';$('#historySummary').textContent=history.length?`直近 ${history.length}回まで戻せます。いちばん新しいのは「${history[0].reason}」（${fmt(history[0].at)}）。`:'戻せる変更はありません。';$('#undoBtn').disabled=!history.length;let pre=null;try{pre=JSON.parse(localStorage.getItem(PREIMPORT_KEY)||'null')}catch{}$('#preImportRestoreBtn').disabled=!(pre&&Array.isArray(pre.entries));
+  }
+
+  let deferredInstallPrompt=null;
+  function updateOriginStatus(){
+    const el=$('#originStatus'); if(!el)return;
+    const secure=location.protocol==='https:' || location.hostname==='localhost';
+    if(secure){el.innerHTML='✓ 固定URLで動作中：<strong>'+esc(location.origin)+'</strong>。この保存領域を継続して使えます。';}
+    else{el.innerHTML='⚠ 現在は <strong>'+esc(location.protocol)+'</strong> で開いています。この状態では保存が安定しません。公開したHTTPS URLから開いてください。';}
+  }
+  window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstallPrompt=e;const b=$('#installBtn');if(b)b.hidden=false;});
+  async function installApp(){
+    if(!deferredInstallPrompt){alert('Chromeのメニューから「ホーム画面に追加」または「アプリをインストール」を選べます。');return;}
+    deferredInstallPrompt.prompt(); try{await deferredInstallPrompt.userChoice}catch{} deferredInstallPrompt=null; const b=$('#installBtn');if(b)b.hidden=true;
+  }
+  window.addEventListener('appinstalled',()=>{deferredInstallPrompt=null;const b=$('#installBtn');if(b)b.hidden=true;});
+
+  async function askNotif(){if(!('Notification'in window))return alert('このブラウザは通知に対応していません。');try{let p=await Notification.requestPermission();alert(p==='granted'?'通知を許可しました。':'通知は許可されませんでした。')}catch{alert('この開き方では通知を使えない可能性があります。')}}
+  function notify(title,body){try{if('Notification'in window&&Notification.permission==='granted')new Notification(title,{body})}catch{}}
+  function checkDueNotifications(){if(!('Notification'in window)||Notification.permission!=='granted')return;const today=dayKey(),key='atode.notified.'+today;if(sessionStorage.getItem(key))return;const due=entries.filter(e=>e.type==='todo'&&!e.done&&e.due&&e.due<=today);if(due.length){notify('あとで。',`今日までのTODOが ${due.length}件あります。`);sessionStorage.setItem(key,'1')}}
+  function switchFilter(f,btn){filter=f;$$('.tab').forEach(x=>x.classList.toggle('active',x===btn));if(f!=='diary')selectedDiaryDay='';if(f==='diary')buildCalendar();render()}
+
+  $('#writeBtn').onclick=()=>openModal('memo');$('#cancelBtn').onclick=closeModal;$('#saveBtn').onclick=save;$('#modalBack').onclick=e=>{if(e.target===$('#modalBack'))closeModal()};
+  $$('.type').forEach(b=>b.onclick=()=>setType(b.dataset.type));$('#entryText').addEventListener('input',updateSuggestion);$('#applySuggest').onclick=()=>setType('todo');
+  $('#addExistingTag').onclick=()=>{addTag($('#tagSelect').value);$('#tagSelect').value=''};$('#addNewTag').onclick=()=>{addTag($('#newTagInput').value);$('#newTagInput').value=''};$('#newTagInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('#addNewTag').click()}});
+  $('#cameraBtn').onclick=()=>$('#cameraInput').click();$('#galleryBtn').onclick=()=>$('#galleryInput').click();$('#cameraInput').onchange=e=>{if(e.target.files?.length)addFiles(e.target.files);e.target.value=''};$('#galleryInput').onchange=e=>{if(e.target.files?.length)addFiles(e.target.files);e.target.value=''};
+  $('#tagLogicBtn').onclick=()=>{tagLogic=tagLogic==='or'?'and':'or';buildTagFilters();render()};$$('.tab').forEach(b=>b.onclick=()=>switchFilter(b.dataset.filter,b));$('#searchInput').addEventListener('input',render);$('#pendingOnly').onclick=()=>{pendingOnly=!pendingOnly;$('#pendingOnly').classList.toggle('active',pendingOnly);render()};$('#dueSort').onclick=()=>{dueSort=!dueSort;$('#dueSort').classList.toggle('active',dueSort);render()};$('#prevMonth').onclick=()=>{calCursor=new Date(calCursor.getFullYear(),calCursor.getMonth()-1,1);buildCalendar()};$('#nextMonth').onclick=()=>{calCursor=new Date(calCursor.getFullYear(),calCursor.getMonth()+1,1);buildCalendar()};
+  $('#exportBtn').onclick=exportBackup;$('#importBtn').onclick=()=>$('#importInput').click();$('#importInput').onchange=e=>{const f=e.target.files?.[0];if(f)importBackup(f);e.target.value=''};$('#preImportRestoreBtn').onclick=restorePreImport;$('#undoBtn').onclick=undoLast;
+  $('#installBtn').onclick=installApp;
+  $('#notifBtn').onclick=askNotif;$('#notifTest').onclick=()=>notify('あとで。','桜色の通知テストです。');
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();if((e.ctrlKey||e.metaKey)&&e.key==='Enter'&&$('#modalBack').classList.contains('show'))save()});
+
+  // 重要：起動時には persistEntries() を呼ばない。読み込みと描画だけ。
+  updateOriginStatus();
+  if('serviceWorker' in navigator && (location.protocol==='https:' || location.hostname==='localhost')){
+    window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+  }
+  refreshTagUI();renderPreview();buildCalendar();render();checkDueNotifications();setInterval(checkDueNotifications,60000);
+})();
+</script>
+</body>
+</html>
